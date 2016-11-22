@@ -116,7 +116,7 @@ Finally, call the main function.
 ```
 
 ### More Meta Method
-This gem also provides lisp-like macro. Use *before* label to define functions
+This gem also provides lisp-like macro. Use `*before*` label to define functions
 that returns eval-able string.
 
 ```
