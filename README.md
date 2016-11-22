@@ -18,6 +18,15 @@ Or install it yourself as:
 
     $ gem install literate-programming
 
+### Installation from repository
+
+You are also able to install this gem from github repository.
+```bash
+$ git clone https://github.com/pixie-grasper/literate-programming.git
+$ cd literate-programming
+$ rake install
+```
+
 ## Usage
 
 - How to Use?
