@@ -82,8 +82,8 @@ First, define the main function and it sings a song ''99 bottles of beer''.
   end
 
 General case, sing below
-If the label-name end with ':@', the rtangle accepts codes as a template.
-In the template code,
+If the label-name end with ':@', the rtangle accepts codes as a general template.
+In the general template code,
 - if '@'-mark followed by a number, the rtangle replaces it with an argument.
 - if '@@'-mark followed by parents, the rtangle replaces it with return value of the insides.
 [[bottles:@]] =
