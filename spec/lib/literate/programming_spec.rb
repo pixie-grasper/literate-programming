@@ -495,4 +495,59 @@ Main.new.run
 ```
     EOC
   end
+
+  it '*before* label' do
+    inst = Literate::Programming.new <<-EOM
+If you want to do something that requires many sentence,
+you can use *before* label;
+It will be expanded and be evaluated by rtangle to help to write.
+[[*]] =
+  def main
+    @@(helper_function)
+  end
+
+For example, *before* label likes below;
+Note: the *before*before* label, the *before*before*before* label, and so on, are also exists.
+[[*before*]] =
+  def helper_function
+    return "p 'Hello, world!'"
+  end
+
+Finally, call the main function.
+[[*]] +=
+  main
+    EOM
+
+    expect(inst.to_ruby).to eq <<-EOC
+def main
+  p 'Hello, world!'
+end
+
+main
+    EOC
+
+    expect(inst.to_md).to eq <<-EOC
+If you want to do something that requires many sentence,
+you can use *before* label;
+It will be expanded and be evaluated by rtangle to help to write.
+```ruby:*
+def main
+  @@(helper_function)
+end
+```
+
+For example, *before* label likes below;
+Note: the *before*before* label, the *before*before*before* label, and so on, are also exists.
+```ruby:*before*
+def helper_function
+  return "p 'Hello, world!'"
+end
+```
+
+Finally, call the main function.
+```ruby:* append
+main
+```
+    EOC
+  end
 end

@@ -5,6 +5,7 @@ module Literate
     def initialize(src = "", source: nil, tabstop: 2)
       @source = source || src
       @tabstop = tabstop
+      @eval_context = BasicObject.new
     end
 
     def to_ruby
@@ -81,12 +82,13 @@ module Literate
         md << '```' << $/
       end
       table['*'] ||= ''
-      return {rb: indent_code(expand(table)), md: indent_text(md)}
+      return {rb: indent_code(expand(table, '*')), md: indent_text(md)}
     end
 
-    def expand(table)
+    def expand(table, label)
+      @eval_context.instance_eval(expand(table, label + 'before*')) if table.member? label + 'before*'
       processed = ''
-      processing = '[[*]]'
+      processing = "[[#{label}]]"
       while processing.match /^((?:[^\[]|\[[^\[])*)\[\[([^\]]+)\]\]/m
         processed << $1
         expanding = $2
@@ -121,7 +123,7 @@ module Literate
           if follow.match /^(?<paren>\((?:[^()]|\g<paren>)*\))/m then
             # @@(expr) -> eval(expr)
             post_match = $~.post_match
-            expanding = eval(expand_template $1, args)
+            expanding = @eval_context.instance_eval(expand_template $1, args)
             processed << expanding.to_s
             processing = post_match
           else
