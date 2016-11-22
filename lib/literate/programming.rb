@@ -6,6 +6,11 @@ module Literate
       @source = source || src
       @tabstop = tabstop
       @eval_context = BasicObject.new
+      @eval_context.instance_eval <<-EOC
+        def gensym
+          return (0 .. 20).collect { ('a' .. 'z')[rand(26)] }.join
+        end
+      EOC
     end
 
     def to_ruby
