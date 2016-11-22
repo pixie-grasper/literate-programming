@@ -38,9 +38,9 @@ First, define the Hello, world!
 
 Next, define Main Program; 'Hello, world!'
 [[*]] =
-def main
-  p [[hello-world]]
-end
+  def main
+    p [[hello-world]]
+  end
 
 Finaly, call the main.
 [[*]] +=
