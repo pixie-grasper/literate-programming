@@ -44,7 +44,7 @@ end
 
 Finaly, call the main.
 [[*]] +=
-main
+  main
 ```
 
 Second, tangle it!
