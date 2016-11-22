@@ -30,7 +30,8 @@ $ rweave example.wrb # to get example.md
 ## Examples
 - Hello, world!
 
-```:hello.wrb
+First, write hellow.wrb
+```
 First, define the Hello, world!
 [[hello-world]] =
   "Hello, world!"
@@ -46,7 +47,13 @@ Finaly, call the main.
 main
 ```
 
-```rb:hello.rb
+Second, tangle it!
+```bash
+$ rtangle hello.wrb
+```
+
+Finally, you will get hello.rb
+```ruby
 def main
   p "Hello, world!"
 end
