@@ -41,7 +41,7 @@ module Literate
           if line.match /^[ \t]*$/ then
             current_mode = :text
           else
-            line = line.match(/^[ \t]*(.*)$/)[1]
+            line = line.match(/^[ \t]*/).post_match
           end
         end
         case current_mode
@@ -87,12 +87,12 @@ module Literate
     def expand(table)
       processed = ''
       processing = '[[*]]'
-      while processing.match /^((?:[^\[]|\[[^\[])*)\[\[([^\]]+)\]\](.*)$/m
+      while processing.match /^((?:[^\[]|\[[^\[])*)\[\[([^\]]+)\]\]/m
         processed << $1
         expanding = $2
-        follow = $3
+        follow = $~.post_match
         if table.member? expanding then
-          processing = table[expanding].chomp
+          processing = expand_template(table[expanding], nil).chomp
         elsif expanding.match /^([^:]+):([^,]+)(,[^,]+)*$/ then
           true_expanding = $1 + ':@'
           args = $~.to_a[2..-2]
@@ -109,24 +109,28 @@ module Literate
     def expand_template(string, args)
       processed = ''
       processing = string
-      while processing.match /^((?:[^@\\]|\\.|@[^0-9@])*)@(.*)$/m
+      while processing.match /^((?:[^@]|@[^0-9@])*)@/m
         processed << $1
-        follow = $2
-        if follow.match /^(0|[1-9][0-9]*)(.*)$/m then
+        follow = $~.post_match
+        if follow.match /^(0|[1-9][0-9]*)/m then
+          # @num -> args[num]
           processed << args[$1.to_i]
-          processing = $2
-        elsif follow.match /^@(.*)$/m then
-          follow = $1
+          processing = $~.post_match
+        elsif follow.match /^@/m then
+          follow = $~.post_match
           if follow.match /^(?<paren>\((?:[^()]|\g<paren>)*\))/m then
+            # @@(expr) -> eval(expr)
             post_match = $~.post_match
             expanding = eval(expand_template $1, args)
             processed << expanding.to_s
             processing = post_match
           else
-            raise ''
+            processed << '@@'
+            processing = follow
           end
         else
-          raise ''
+          processed << '@'
+          processing = follow
         end
       end
       return processed << processing
@@ -170,7 +174,11 @@ module Literate
       else
         current_indent_level = indent_level_stack[-1] + @tabstop
       end
-      buffer << ' ' * current_indent_level << line << $/
+      if line.match /^[ \t]*$/ then
+        buffer << $/
+      else
+        buffer << ' ' * current_indent_level << line << $/
+      end
       if line.match /^[ \t]*(begin|class|def|for|while|module)\b/
         indent_level_stack.push current_indent_level
       end

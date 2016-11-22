@@ -2,7 +2,7 @@ require 'spec_helper'
 require 'literate/programming'
 
 describe 'literate-programming' do
-  it do
+  it 'empty' do
     inst = Literate::Programming.new
     expect(inst.to_ruby).to eq ""
     expect(inst.to_md).to eq ""
@@ -119,7 +119,7 @@ main
 
   it 'template case 1' do
     inst = Literate::Programming.new <<-EOM
-Template 1.
+Template Case 1.
 [[*]] =
   def main
     [[main-body]]
@@ -367,7 +367,7 @@ main
     EOC
 
     expect(inst.to_md).to eq <<-EOC
-Template 1.
+Template Case 1.
 ```ruby:*
 def main
   [[main-body]]
@@ -409,6 +409,89 @@ puts 'Go to the store and buy some more, 99 bottles of beer on the wall.'
 Finally, call the main function.
 ```ruby:* append
 main
+```
+    EOC
+  end
+
+  it 'template case 2' do
+    inst = Literate::Programming.new <<-EOM
+Template Case 2.
+[[*]] =
+  class Main
+    [[main-body]]
+  end
+
+It is free to use @ unless it is followed by a number.
+It is also free to use @@ unless it is followed by left parent.
+[[main-body]] =
+  def initialize
+    @x = @@default_x
+  end
+
+If @@ is followed by left parent, it will evaluated by the rtangle.
+For example, an rtangled below one will equals to '@@default_x = 10'
+[[main-body]] +=
+  @@default_x = @@(1 + 2 + 3 + 4)
+
+How Main.new.run works?
+[[main-body]] +=
+  def run
+    p 'Hello!'
+  end
+
+Finally, instanciate Main and run it!
+[[*]] +=
+  Main.new.run
+    EOM
+
+    expect(inst.to_ruby).to eq <<-EOC
+class Main
+  def initialize
+    @x = @@default_x
+  end
+
+  @@default_x = 10
+
+  def run
+    p 'Hello!'
+  end
+end
+
+Main.new.run
+    EOC
+
+    expect(inst.to_md).to eq <<-EOC
+Template Case 2.
+```ruby:*
+class Main
+  [[main-body]]
+end
+```
+
+It is free to use @ unless it is followed by a number.
+It is also free to use @@ unless it is followed by left parent.
+```ruby:main-body
+def initialize
+  @x = @@default_x
+end
+```
+
+If @@ is followed by left parent, it will evaluated by the rtangle.
+For example, an rtangled below one will equals to '@@default_x = 10'
+```ruby:main-body append
+@@default_x = @@(1 + 2 + 3 + 4)
+```
+
+How Main.new.run works?
+```ruby:main-body append
+def run
+  p 'Hello!'
+end
+```
+
+Finally, instanciate Main and run it!
+```ruby:* append
+Main.new.run
 ```
     EOC
   end

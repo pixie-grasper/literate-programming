@@ -1,0 +1,27 @@
+Template Case 2.
+[[*]] =
+  class Main
+    [[main-body]]
+  end
+
+It is free to use @ unless it is followed by a number.
+It is also free to use @@ unless it is followed by left parent.
+[[main-body]] =
+  def initialize
+    @x = @@default_x
+  end
+
+If @@ is followed by left parent, it will evaluated by the rtangle.
+For example, an rtangled below one will equals to '@@default_x = 10'
+[[main-body]] +=
+  @@default_x = @@(1 + 2 + 3 + 4)
+
+How Main.new.run works?
+[[main-body]] +=
+  def run
+    p 'Hello!'
+  end
+
+Finally, instanciate Main and run it!
+[[*]] +=
+  Main.new.run
