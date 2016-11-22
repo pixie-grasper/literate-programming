@@ -115,6 +115,31 @@ Finally, call the main function.
   main
 ```
 
+### More Meta Method
+This gem also provides lisp-like macro. Use *before* label to define functions
+that returns eval-able string.
+
+```
+If you want to do something that requires many sentence,
+you can use *before* label;
+It will be expanded and be evaluated by rtangle to help to write.
+[[*]] =
+  def main
+    @@(helper_function)
+  end
+
+For example, *before* label likes below;
+Note: the *before*before* label, the *before*before*before* label, and so on, are also exists.
+[[*before*]] =
+  def helper_function
+    return "p 'Hello, world!'"
+  end
+
+Finally, call the main function.
+[[*]] +=
+  main
+```
+
 ## License
 
 The gem is available as open source under the terms of the [MIT License](http://opensource.org/licenses/MIT).
