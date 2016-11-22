@@ -37,8 +37,7 @@ $ rweave example.wrb # to get example.md
 ```
 
 ## Examples
-- Hello, world!
-
+### Hello, world!
 First, write hellow.wrb
 ```
 First, define the Hello, world!
@@ -70,8 +69,7 @@ end
 main
 ```
 
-- 99 Bottles
-
+### 99 Bottles
 This gem provides the Template Meta Programming.
 For example, below code is an implementation of the 99-bottles.
 
