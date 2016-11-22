@@ -1,0 +1,36 @@
+Template 1.
+[[*]] =
+  def main
+    [[main-body]]
+  end
+
+Sing a song ''99 bottles of beer''
+[[main-body]] =
+  [[bottles:100]]
+
+General case, sing below
+[[bottles:@]] =
+  puts '@0 bottles of beer on the wall, @0 bottles of beer.'
+  puts 'Take one down and pass it around, @@(@0 - 1) bottles of beer on the wall.'
+  [[bottles:@@(@0 - 1)]]
+
+When number of bottles == 2
+[[bottles:2]] =
+  puts '2 bottles of beer on the wall, 2 bottles of beer.'
+  puts 'Take one down and pass it around, 1 bottle of beer on the wall.'
+  [[bottles:1]]
+
+When number of bottles == 1
+[[bottles:1]] =
+  puts '1 bottle of beer on the wall, 1 bottle of beer.'
+  puts 'Take one down and pass it around, no more bottles of beer on the wall.'
+  [[bottles:0]]
+
+When no rest bottles...
+[[bottles:0]] =
+  puts 'No more bottles of beer on the wall, no more bottles of beer.'
+  puts 'Go to the store and buy some more, 99 bottles of beer on the wall.'
+
+Finally, call the main function.
+[[*]] +=
+  main

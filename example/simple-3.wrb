@@ -1,0 +1,17 @@
+Simple Case 3.
+[[*]] =
+  def main
+    [[main-body]]
+  end
+
+The main function says hello-world
+[[main-body]] =
+  p [[hello-world]]
+
+Definition of the hello-world is a 'Hello, world!'
+[[hello-world]] =
+  'Hello, world!'
+
+Finally, call the main function.
+[[*]] +=
+  main

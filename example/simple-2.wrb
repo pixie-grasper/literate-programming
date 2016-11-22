@@ -1,0 +1,7 @@
+Simple Case 2.
+[[hello-world]] =
+  'Hello, world!'
+
+The main program says hello!
+[[*]] =
+  p [[hello-world]]
