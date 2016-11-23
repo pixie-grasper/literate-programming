@@ -61,7 +61,7 @@ p 'Hello, world!'
 \\begin{document}
 \\lstset{language=Ruby}
 Simple Case 1.
-\\begin{lstlisting}[caption=*]
+\\begin{lstlisting}[frame=lines,caption=*]
 p 'Hello, world!'
 \\end{lstlisting}
 \\end{document}
@@ -101,12 +101,12 @@ p [[hello-world]]
 \\begin{document}
 \\lstset{language=Ruby}
 Simple Case 2.
-\\begin{lstlisting}[caption=hello-world]
+\\begin{lstlisting}[frame=lines,caption=hello-world]
 'Hello, world!'
 \\end{lstlisting}
 
 The main program says hello!
-\\begin{lstlisting}[caption=*]
+\\begin{lstlisting}[frame=lines,caption=*]
 p [[hello-world]]
 \\end{lstlisting}
 \\end{document}
@@ -172,24 +172,24 @@ main
 \\begin{document}
 \\lstset{language=Ruby}
 Simple Case 3.
-\\begin{lstlisting}[caption=*]
+\\begin{lstlisting}[frame=lines,caption=*]
 def main
   [[main-body]]
 end
 \\end{lstlisting}
 
 The main function says hello-world
-\\begin{lstlisting}[caption=main-body]
+\\begin{lstlisting}[frame=lines,caption=main-body]
 p [[hello-world]]
 \\end{lstlisting}
 
 Definition of the hello-world is a 'Hello, world!'
-\\begin{lstlisting}[caption=hello-world]
+\\begin{lstlisting}[frame=lines,caption=hello-world]
 'Hello, world!'
 \\end{lstlisting}
 
 Finally, call the main function.
-\\begin{lstlisting}[caption=* append]
+\\begin{lstlisting}[frame=lines,caption=* append]
 main
 \\end{lstlisting}
 \\end{document}
@@ -497,46 +497,46 @@ main
 \\begin{document}
 \\lstset{language=Ruby}
 Template Case 1.
-\\begin{lstlisting}[caption=*]
+\\begin{lstlisting}[frame=lines,caption=*]
 def main
   [[main-body]]
 end
 \\end{lstlisting}
 
 Sing a song ''99 bottles of beer''
-\\begin{lstlisting}[caption=main-body]
+\\begin{lstlisting}[frame=lines,caption=main-body]
 [[bottles:100]]
 \\end{lstlisting}
 
 General case, sing below
-\\begin{lstlisting}[caption=bottles:@]
+\\begin{lstlisting}[frame=lines,caption=bottles:@]
 puts '@0 bottles of beer on the wall, @0 bottles of beer.'
 puts 'Take one down and pass it around, @@(@0 - 1) bottles of beer on the wall.'
 [[bottles:@@(@0 - 1)]]
 \\end{lstlisting}
 
 When number of bottles == 2
-\\begin{lstlisting}[caption=bottles:2]
+\\begin{lstlisting}[frame=lines,caption=bottles:2]
 puts '2 bottles of beer on the wall, 2 bottles of beer.'
 puts 'Take one down and pass it around, 1 bottle of beer on the wall.'
 [[bottles:1]]
 \\end{lstlisting}
 
 When number of bottles == 1
-\\begin{lstlisting}[caption=bottles:1]
+\\begin{lstlisting}[frame=lines,caption=bottles:1]
 puts '1 bottle of beer on the wall, 1 bottle of beer.'
 puts 'Take one down and pass it around, no more bottles of beer on the wall.'
 [[bottles:0]]
 \\end{lstlisting}
 
 When no rest bottles...
-\\begin{lstlisting}[caption=bottles:0]
+\\begin{lstlisting}[frame=lines,caption=bottles:0]
 puts 'No more bottles of beer on the wall, no more bottles of beer.'
 puts 'Go to the store and buy some more, 99 bottles of beer on the wall.'
 \\end{lstlisting}
 
 Finally, call the main function.
-\\begin{lstlisting}[caption=* append]
+\\begin{lstlisting}[frame=lines,caption=* append]
 main
 \\end{lstlisting}
 \\end{document}
@@ -631,7 +631,7 @@ Main.new.run
 \\begin{document}
 \\lstset{language=Ruby}
 Template Case 2.
-\\begin{lstlisting}[caption=*]
+\\begin{lstlisting}[frame=lines,caption=*]
 class Main
   [[main-body]]
 end
@@ -639,7 +639,7 @@ end
 
 It is free to use @ unless it is followed by a number.
 It is also free to use @@ unless it is followed by left parent.
-\\begin{lstlisting}[caption=main-body]
+\\begin{lstlisting}[frame=lines,caption=main-body]
 def initialize
   @x = @@default_x
 end
@@ -647,19 +647,19 @@ end
 
 If @@ is followed by left parent, it will evaluated by the rtangle.
 For example, an rtangled below one will equals to '@@default_x = 10'
-\\begin{lstlisting}[caption=main-body append]
+\\begin{lstlisting}[frame=lines,caption=main-body append]
 @@default_x = @@(1 + 2 + 3 + 4)
 \\end{lstlisting}
 
 How Main.new.run works?
-\\begin{lstlisting}[caption=main-body append]
+\\begin{lstlisting}[frame=lines,caption=main-body append]
 def run
   p 'Hello!'
 end
 \\end{lstlisting}
 
 Finally, instanciate Main and run it!
-\\begin{lstlisting}[caption=* append]
+\\begin{lstlisting}[frame=lines,caption=* append]
 Main.new.run
 \\end{lstlisting}
 \\end{document}
@@ -728,7 +728,7 @@ main
 If you want to do something that requires many sentence,
 you can use *before* label;
 It will be expanded and be evaluated by rtangle to help to write.
-\\begin{lstlisting}[caption=*]
+\\begin{lstlisting}[frame=lines,caption=*]
 def main
   @@(helper_function)
 end
@@ -736,14 +736,14 @@ end
 
 For example, *before* label likes below;
 Note: the *before*before* label, the *before*before*before* label, and so on, are also exists.
-\\begin{lstlisting}[caption=*before*]
+\\begin{lstlisting}[frame=lines,caption=*before*]
 def helper_function
   return "p 'Hello, world!'"
 end
 \\end{lstlisting}
 
 Finally, call the main function.
-\\begin{lstlisting}[caption=* append]
+\\begin{lstlisting}[frame=lines,caption=* append]
 main
 \\end{lstlisting}
 \\end{document}
