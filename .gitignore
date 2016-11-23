@@ -10,3 +10,8 @@
 *.swp
 /example/*.rb
 /example/*.md
+/example/*.tex
+/example/*.dvi
+/example/*.pdf
+/example/*.aux
+/example/*.log

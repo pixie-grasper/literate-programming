@@ -21,9 +21,19 @@ module Literate
       convert[:md]
     end
 
+    def to_tex
+      convert[:tex]
+    end
+
     def convert
       current_mode = :text
       md = ""
+      tex = <<-TEX
+\\documentclass{report}
+\\usepackage{listings}
+\\begin{document}
+\\lstset{language=Ruby}
+      TEX
       table = {}
       current_code = nil
       current_label = nil
@@ -62,17 +72,23 @@ module Literate
                 table[current_label] << $/ << current_code
             end
             md << '```' << $/ << $/
+            tex << '\\end{lstlisting}' << $/ << $/
           else
             md << line << $/
+            tex << line << $/
           end
         when :code
           if old_mode == :code then
             current_code << line << $/
             md << line << $/
+            tex << line << $/
           else
             md << '```ruby:' << current_label
             md << ' append' if operator == :append
             md << $/
+            tex << '\\begin{lstlisting}[frame=lines,caption=' << current_label
+            tex << ' append' if operator == :append
+            tex << ']' << $/
           end
         end
       end
@@ -85,9 +101,13 @@ module Literate
             table[current_label] << $/ << current_code
         end
         md << '```' << $/
+        tex << '\\end{lstlisting}' << $/
       end
       table['*'] ||= ''
-      return {rb: indent_code(expand(table, '*')), md: indent_text(md)}
+      tex << <<-TEX
+\\end{document}
+      TEX
+      return {rb: indent_code(expand(table, '*')), md: indent_markdown(md), tex: indent_tex(tex)}
     end
 
     def expand(table, label)
@@ -152,7 +172,7 @@ module Literate
       return ret
     end
 
-    def indent_text(text)
+    def indent_markdown(text)
       mode = :text
       ret = ''
       indent_level_stack = nil
@@ -164,6 +184,27 @@ module Literate
         elsif mode == :text then
           ret << line << $/
         elsif mode == :code and line.match /^```/ then
+          mode = :text
+          ret << line << $/
+        else
+          ret, indent_level_stack = pretty_print_ruby ret, indent_level_stack, line
+        end
+      end
+      return ret
+    end
+
+    def indent_tex(text)
+      mode = :text
+      ret = ''
+      indent_level_stack = nil
+      text.split($/).each do |line|
+        if mode == :text and line.match /^\\begin{lstlisting}/ then
+          mode = :code
+          indent_level_stack = [-@tabstop]
+          ret << line << $/
+        elsif mode == :text then
+          ret << line << $/
+        elsif mode == :code and line.match /^\\end{lstlisting}/ then
           mode = :text
           ret << line << $/
         else

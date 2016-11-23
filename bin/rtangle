@@ -1,9 +1,36 @@
 #!/usr/bin/env ruby
 
+require 'getoptlong'
 require 'literate/programming'
 
-raise if ARGV.length < 1
-ifname = ARGV[0]
-ofname = File.dirname(ifname) + '/' + File.basename(ifname, '.wrb') + '.rb'
-inst = Literate::Programming.new File.open(ifname, 'r').read
-File.open(ofname, 'w').write inst.to_ruby
+def usage
+  print <<-EOM
+Usage: rtangle [command]... source.wrb...
+
+ commands:
+  -h -? --help --usage    show this message and exit
+  EOM
+  exit
+end
+
+def main
+  options = {}
+  begin
+    GetoptLong.new.set_options(
+      %w/-h -? --help --usage/ << GetoptLong::NO_ARGUMENT,
+    ).each_option do |name, value|
+      options[name.sub(/^--?/, '').gsub(/-/, '_').to_sym] = value
+    end
+  rescue GetoptLong::Error
+    usage
+  end
+
+  usage if ARGV.length == 0 or options.member? :h
+  ARGV.each do |ifname|
+    inst = Literate::Programming.new File.open(ifname, 'r').read
+    ofname = File.dirname(ifname) + '/' + File.basename(ifname, '.wrb') + '.rb'
+    File.open(ofname, 'w').write inst.to_ruby
+  end
+end
+
+main

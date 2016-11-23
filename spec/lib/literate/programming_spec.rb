@@ -6,14 +6,35 @@ describe 'literate-programming' do
     inst = Literate::Programming.new
     expect(inst.to_ruby).to eq ""
     expect(inst.to_md).to eq ""
+    expect(inst.to_tex).to eq <<-TEX
+\\documentclass{report}
+\\usepackage{listings}
+\\begin{document}
+\\lstset{language=Ruby}
+\\end{document}
+    TEX
 
     inst = Literate::Programming.new ""
     expect(inst.to_ruby).to eq ""
     expect(inst.to_md).to eq ""
+    expect(inst.to_tex).to eq <<-TEX
+\\documentclass{report}
+\\usepackage{listings}
+\\begin{document}
+\\lstset{language=Ruby}
+\\end{document}
+    TEX
 
     inst = Literate::Programming.new $/
     expect(inst.to_ruby).to eq ""
     expect(inst.to_md).to eq ""
+    expect(inst.to_tex).to eq <<-TEX
+\\documentclass{report}
+\\usepackage{listings}
+\\begin{document}
+\\lstset{language=Ruby}
+\\end{document}
+    TEX
   end
 
   it 'simple case 1' do
@@ -32,6 +53,18 @@ Simple Case 1.
 ```ruby:*
 p 'Hello, world!'
 ```
+    EOM
+
+    expect(inst.to_tex).to eq <<-EOM
+\\documentclass{report}
+\\usepackage{listings}
+\\begin{document}
+\\lstset{language=Ruby}
+Simple Case 1.
+\\begin{lstlisting}[caption=*]
+p 'Hello, world!'
+\\end{lstlisting}
+\\end{document}
     EOM
   end
 
@@ -61,6 +94,23 @@ The main program says hello!
 p [[hello-world]]
 ```
     EOM
+
+    expect(inst.to_tex).to eq <<-TEX
+\\documentclass{report}
+\\usepackage{listings}
+\\begin{document}
+\\lstset{language=Ruby}
+Simple Case 2.
+\\begin{lstlisting}[caption=hello-world]
+'Hello, world!'
+\\end{lstlisting}
+
+The main program says hello!
+\\begin{lstlisting}[caption=*]
+p [[hello-world]]
+\\end{lstlisting}
+\\end{document}
+    TEX
   end
 
   it 'simple case 3' do
@@ -115,6 +165,35 @@ Finally, call the main function.
 main
 ```
     EOC
+
+    expect(inst.to_tex).to eq <<-TEX
+\\documentclass{report}
+\\usepackage{listings}
+\\begin{document}
+\\lstset{language=Ruby}
+Simple Case 3.
+\\begin{lstlisting}[caption=*]
+def main
+  [[main-body]]
+end
+\\end{lstlisting}
+
+The main function says hello-world
+\\begin{lstlisting}[caption=main-body]
+p [[hello-world]]
+\\end{lstlisting}
+
+Definition of the hello-world is a 'Hello, world!'
+\\begin{lstlisting}[caption=hello-world]
+'Hello, world!'
+\\end{lstlisting}
+
+Finally, call the main function.
+\\begin{lstlisting}[caption=* append]
+main
+\\end{lstlisting}
+\\end{document}
+    TEX
   end
 
   it 'template case 1' do
@@ -411,6 +490,57 @@ Finally, call the main function.
 main
 ```
     EOC
+
+    expect(inst.to_tex).to eq <<-TEX
+\\documentclass{report}
+\\usepackage{listings}
+\\begin{document}
+\\lstset{language=Ruby}
+Template Case 1.
+\\begin{lstlisting}[caption=*]
+def main
+  [[main-body]]
+end
+\\end{lstlisting}
+
+Sing a song ''99 bottles of beer''
+\\begin{lstlisting}[caption=main-body]
+[[bottles:100]]
+\\end{lstlisting}
+
+General case, sing below
+\\begin{lstlisting}[caption=bottles:@]
+puts '@0 bottles of beer on the wall, @0 bottles of beer.'
+puts 'Take one down and pass it around, @@(@0 - 1) bottles of beer on the wall.'
+[[bottles:@@(@0 - 1)]]
+\\end{lstlisting}
+
+When number of bottles == 2
+\\begin{lstlisting}[caption=bottles:2]
+puts '2 bottles of beer on the wall, 2 bottles of beer.'
+puts 'Take one down and pass it around, 1 bottle of beer on the wall.'
+[[bottles:1]]
+\\end{lstlisting}
+
+When number of bottles == 1
+\\begin{lstlisting}[caption=bottles:1]
+puts '1 bottle of beer on the wall, 1 bottle of beer.'
+puts 'Take one down and pass it around, no more bottles of beer on the wall.'
+[[bottles:0]]
+\\end{lstlisting}
+
+When no rest bottles...
+\\begin{lstlisting}[caption=bottles:0]
+puts 'No more bottles of beer on the wall, no more bottles of beer.'
+puts 'Go to the store and buy some more, 99 bottles of beer on the wall.'
+\\end{lstlisting}
+
+Finally, call the main function.
+\\begin{lstlisting}[caption=* append]
+main
+\\end{lstlisting}
+\\end{document}
+    TEX
   end
 
   it 'template case 2' do
@@ -494,6 +624,46 @@ Finally, instanciate Main and run it!
 Main.new.run
 ```
     EOC
+
+    expect(inst.to_tex).to eq <<-TEX
+\\documentclass{report}
+\\usepackage{listings}
+\\begin{document}
+\\lstset{language=Ruby}
+Template Case 2.
+\\begin{lstlisting}[caption=*]
+class Main
+  [[main-body]]
+end
+\\end{lstlisting}
+
+It is free to use @ unless it is followed by a number.
+It is also free to use @@ unless it is followed by left parent.
+\\begin{lstlisting}[caption=main-body]
+def initialize
+  @x = @@default_x
+end
+\\end{lstlisting}
+
+If @@ is followed by left parent, it will evaluated by the rtangle.
+For example, an rtangled below one will equals to '@@default_x = 10'
+\\begin{lstlisting}[caption=main-body append]
+@@default_x = @@(1 + 2 + 3 + 4)
+\\end{lstlisting}
+
+How Main.new.run works?
+\\begin{lstlisting}[caption=main-body append]
+def run
+  p 'Hello!'
+end
+\\end{lstlisting}
+
+Finally, instanciate Main and run it!
+\\begin{lstlisting}[caption=* append]
+Main.new.run
+\\end{lstlisting}
+\\end{document}
+    TEX
   end
 
   it '*before* label' do
@@ -549,5 +719,34 @@ Finally, call the main function.
 main
 ```
     EOC
+
+    expect(inst.to_tex).to eq <<-TEX
+\\documentclass{report}
+\\usepackage{listings}
+\\begin{document}
+\\lstset{language=Ruby}
+If you want to do something that requires many sentence,
+you can use *before* label;
+It will be expanded and be evaluated by rtangle to help to write.
+\\begin{lstlisting}[caption=*]
+def main
+  @@(helper_function)
+end
+\\end{lstlisting}
+
+For example, *before* label likes below;
+Note: the *before*before* label, the *before*before*before* label, and so on, are also exists.
+\\begin{lstlisting}[caption=*before*]
+def helper_function
+  return "p 'Hello, world!'"
+end
+\\end{lstlisting}
+
+Finally, call the main function.
+\\begin{lstlisting}[caption=* append]
+main
+\\end{lstlisting}
+\\end{document}
+    TEX
   end
 end
