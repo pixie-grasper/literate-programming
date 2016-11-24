@@ -2,15 +2,26 @@ require "literate/programming/version"
 
 module Literate
   class Programming
-    def initialize(src = "", source: nil, tabstop: 2)
+    attr_writer :tabstop, :expandtab
+
+    def initialize(src = "", source: nil, tabstop: 2, expandtab: true)
       @source = source || src
       @tabstop = tabstop
+      @expandtab = expandtab
       @eval_context = BasicObject.new
       @eval_context.instance_eval <<-EOC
         def gensym
           return (0 .. 20).collect { ('a' .. 'z').to_a[::Random.rand(26)] }.join
         end
       EOC
+    end
+
+    def inspect
+      return "#<Literate::Programming:0x#{object_id.to_s(16)} tabstop=#{@tabstop} expandtab=#{@expandtab}>"
+    end
+
+    def <<(append)
+      @source << append
     end
 
     def to_ruby
@@ -25,6 +36,7 @@ module Literate
       convert[:tex]
     end
 
+   private
     def convert
       current_mode = :text
       md = ""
@@ -94,11 +106,11 @@ module Literate
       end
       if current_mode == :code then
         case operator
-          when :assign
-            table[current_label] = current_code
-          when :append
-            table[current_label] ||= ''
-            table[current_label] << $/ << current_code
+        when :assign
+          table[current_label] = current_code
+        when :append
+          table[current_label] ||= ''
+          table[current_label] << $/ << current_code
         end
         md << '```' << $/
         tex << '\\end{lstlisting}' << $/
@@ -164,7 +176,7 @@ module Literate
     end
 
     def indent_code(code)
-      indent_level_stack = [-@tabstop]
+      indent_level_stack = [-1]
       ret = ''
       code.split($/).each do |line|
         ret, indent_level_stack = pretty_print_ruby ret, indent_level_stack, line
@@ -179,7 +191,7 @@ module Literate
       text.split($/).each do |line|
         if mode == :text and line.match /^```/ then
           mode = :code
-          indent_level_stack = [-@tabstop]
+          indent_level_stack = [-1]
           ret << line << $/
         elsif mode == :text then
           ret << line << $/
@@ -200,7 +212,7 @@ module Literate
       text.split($/).each do |line|
         if mode == :text and line.match /^\\begin{lstlisting}/ then
           mode = :code
-          indent_level_stack = [-@tabstop]
+          indent_level_stack = [-1]
           ret << line << $/
         elsif mode == :text then
           ret << line << $/
@@ -220,12 +232,14 @@ module Literate
       elsif line.match /\b(end)\b/ then
         current_indent_level = indent_level_stack.pop
       else
-        current_indent_level = indent_level_stack[-1] + @tabstop
+        current_indent_level = indent_level_stack[-1] + 1
       end
       if line.match /^[ \t]*$/ then
         buffer << $/
+      elsif @expandtab then
+        buffer << ' ' * current_indent_level * @tabstop << line << $/
       else
-        buffer << ' ' * current_indent_level << line << $/
+        buffer << '\t' * current_indent_level << line << $/
       end
       if line.match /^[ \t]*(begin|class|def|for|while|module)\b/
         indent_level_stack.push current_indent_level

@@ -8,9 +8,20 @@ def usage
 Usage: rweave [command]... source.wrb...
 
  commands:
-  -h, -?, --help, --usage     show this message and exit
-  -fFORMAT, --format=FORMAT   specify output format
-                              default: Markdown
+  -c, --concat                Read all sources,
+                              then output to single file.
+                              default: false
+  -e, --expandtab             Indent with spaces.
+                              default: true
+  -fFORMAT, --format=FORMAT   Specifies output format.
+                              default: md
+  -h, -?, --help, --usage     Show this message and exit.
+  -oFILE, --output=FILE       Set output file name.
+                              If set this option,
+                              --concat option will also set.
+  -tSTOP, --tabstop=STOP      Specifies how many spaces
+                              per indent depth.
+                              default: 2
 
  formats:
   md    Markdown
@@ -20,30 +31,72 @@ Usage: rweave [command]... source.wrb...
 end
 
 def main
-  options = {}
+  options = {c: false, e: true, f: 'md', t: 2}
   begin
     GetoptLong.new.set_options(
-      %w/-h -? --help --usage/ << GetoptLong::NO_ARGUMENT,
+      %w/-c --concat/ << GetoptLong::OPTIONAL_ARGUMENT,
+      %w/-e --expandtab/ << GetoptLong::OPTIONAL_ARGUMENT,
       %w/-f --format/ << GetoptLong::REQUIRED_ARGUMENT,
+      %w/-h -? --help --usage/ << GetoptLong::NO_ARGUMENT,
+      %w/-o --output/ << GetoptLong::REQUIRED_ARGUMENT,
+      %w/-t --tabstop/ << GetoptLong::REQUIRED_ARGUMENT,
     ).each_option do |name, value|
-      options[name.sub(/^--?/, '').gsub(/-/, '_').to_sym] = value
+      option = name.sub(/^--?/, '').gsub(/-/, '_')
+      if %w/c e/.member? option then
+        case value
+        when '', /^t(r(ue?)?)?$/, /^y(es?)?$/
+          value = true
+        when /^f(a(l(se?)?)?)?$/, /^no?$/
+          value = false
+        else
+          raise "unrecognized value #{name}=#{value}"
+        end
+      elsif %w/t/.member? option then
+        value = value.to_i
+      end
+      options[option.to_sym] = value
     end
   rescue GetoptLong::Error
     usage
   end
 
   usage if ARGV.length == 0 or options.member? :h
-  ARGV.each do |ifname|
-    inst = Literate::Programming.new File.open(ifname, 'r').read
-    case options[:f]
-    when 'md', nil
-      ofname = File.dirname(ifname) + '/' + File.basename(ifname, '.wrb') + '.md'
-      File.open(ofname, 'w').write inst.to_md
-    when 'tex'
-      ofname = File.dirname(ifname) + '/' + File.basename(ifname, '.wrb') + '.tex'
-      File.open(ofname, 'w').write inst.to_tex
+  if options.member? :o or options.member? :c then
+    inst = Literate::Programming.new ARGV.collect { |path|
+      File.open(path, 'r').read
+    }.join($/), tabstop: options[:t], expandtab: options[:e]
+    if options.member? :o then
+      case options[:f]
+      when 'md'
+        File.open(options[:o], 'w').write inst.to_md
+      when 'tex'
+        File.open(options[:o], 'w').write inst.to_tex
+      else
+        raise 'unknown format ' + options[:f]
+      end
     else
-      raise 'unknown format ' + options[:f]
+      case options[:f]
+      when 'md'
+        File.open('a.md', 'w').write inst.to_md
+      when 'tex'
+        File.open('a.tex', 'w').write inst.to_tex
+      else
+        raise 'unknown format ' + options[:f]
+      end
+    end
+  else
+    ARGV.each do |ifname|
+      inst = Literate::Programming.new File.open(ifname, 'r').read, tabstop: options[:t], expandtab: options[:e]
+      case options[:f]
+      when 'md'
+        ofname = File.dirname(ifname) + '/' + File.basename(ifname, '.wrb') + '.md'
+        File.open(ofname, 'w').write inst.to_md
+      when 'tex'
+        ofname = File.dirname(ifname) + '/' + File.basename(ifname, '.wrb') + '.tex'
+        File.open(ofname, 'w').write inst.to_tex
+      else
+        raise 'unknown format ' + options[:f]
+      end
     end
   end
 end
